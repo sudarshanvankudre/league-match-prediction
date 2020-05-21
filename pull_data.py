@@ -1,6 +1,3 @@
-from data_loader import ChallengerEntriesLoader
+from data_loader import load_challenger_entries
 
-challenger_entries_loader = ChallengerEntriesLoader()
-
-
-challenger_entries_loader.load()
+load_challenger_entries()
