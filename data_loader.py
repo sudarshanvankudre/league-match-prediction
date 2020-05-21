@@ -48,6 +48,14 @@ def validate_response(r):
         return
 
 
+def handle_rate_limit(r, count):
+    print("Total responses processed: {}".format(count))
+    wait_time = int(r.headers["Retry-After"])
+    minutes, seconds = divmod(wait_time, 60)
+    print("Waiting for {} minutes {} seconds...".format(minutes, seconds))
+    time.sleep(wait_time)
+
+
 def get_collection(db_name, collection_name):
     """Returns an iterable of documents from the collection_name in db corresponding to db_name"""
     if db_name == "firestore":
@@ -71,6 +79,7 @@ def load_challenger_entries(queue='RANKED_SOLO_5x5'):
 def load_challenger_summoners():
     """Loads all of the summoners from riot api depending on the existing league entries in db"""
     entries = list(get_collection(database, "challenger_entries"))
+    print(len(entries))
     count = 0
     while len(entries) > 0:
         entry = entries.pop()
@@ -79,14 +88,23 @@ def load_challenger_summoners():
         r = requests.get(API_URL + "/lol/summoner/v4/summoners/" + summoner_id, headers=REQUEST_HEADERS)
         validate_response(r)
         if r.status_code == 429:
-            print("Total summoners processed: {}".format(count))
-            wait_time = int(r.headers["Retry-After"])
             entries.append(entry)
-            minutes, seconds = divmod(wait_time, 60)
-            print("Waiting for {} minutes {} seconds...".format(minutes, seconds))
-            time.sleep(wait_time)
+            handle_rate_limit(r, count)
         else:
             count += 1
             print("Adding summoners to database...")
-            load_into(database, e, "challenger_summoners")
+            load_into(database, r.json(), "challenger_summoners")
     print("{} summoners loaded".format(count))
+
+
+def load_challenger_games():
+    summoners = list(get_collection(database, "challenger_summoners"))
+    count = 0
+    seen_games = set()
+    while len(summoners) > 0:
+        summoner = summoners.pop()
+        s = summoner.to_dict()
+        account_id = s["accountId"]
+        match_response = requests.get(API_URL + "/lol/match/v4/matchlists/by-account/" + account_id,
+                                      headers=REQUEST_HEADERS)
+        validate_response(match_response)
