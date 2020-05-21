@@ -70,10 +70,10 @@ def load_challenger_entries(queue='RANKED_SOLO_5x5'):
 
 def load_challenger_summoners():
     """Loads all of the summoners from riot api depending on the existing league entries in db"""
-    entries = get_collection(database, "challenger_entries")
-    leftover = []
+    entries = list(get_collection(database, "challenger_entries"))
     count = 0
-    for entry in entries:
+    while len(entries) > 0:
+        entry = entries.pop()
         e = entry.to_dict()
         summoner_id = e["summonerId"]
         r = requests.get(API_URL + "/lol/summoner/v4/summoners/" + summoner_id, headers=REQUEST_HEADERS)
@@ -81,7 +81,7 @@ def load_challenger_summoners():
         if r.status_code == 429:
             print("Total summoners processed: {}".format(count))
             wait_time = int(r.headers["Retry-After"])
-            leftover.append(entry)
+            entries.append(entry)
             minutes, seconds = divmod(wait_time, 60)
             print("Waiting for {} minutes {} seconds...".format(minutes, seconds))
             time.sleep(wait_time)
@@ -89,3 +89,4 @@ def load_challenger_summoners():
             count += 1
             print("Adding summoners to database...")
             load_into(database, e, "challenger_summoners")
+    print("{} summoners loaded".format(count))
