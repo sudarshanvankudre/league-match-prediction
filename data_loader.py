@@ -49,11 +49,22 @@ def validate_response(r):
 
 
 def handle_rate_limit(r, count):
-    print("Total responses processed: {}".format(count))
-    wait_time = int(r.headers["Retry-After"])
-    minutes, seconds = divmod(wait_time, 60)
-    print("Waiting for {} minutes {} seconds...".format(minutes, seconds))
-    time.sleep(wait_time)
+    try:
+        print("Total responses processed: {}".format(count))
+        wait_time = int(r.headers["Retry-After"])
+        minutes, seconds = divmod(wait_time, 60)
+        print("Waiting for {} minutes {} seconds...".format(minutes, seconds))
+        time.sleep(wait_time)
+    except Exception as e:
+        print("Exception thrown: ", e)
+        print("Response: ", r)
+        pass
+
+
+def get_response(api, *args):
+    print(api)
+    print(args)
+    print(type(args))
 
 
 def get_collection(db_name, collection_name):
@@ -99,7 +110,7 @@ def load_challenger_summoners():
 
 def load_challenger_games():
     summoners = list(get_collection(database, "challenger_summoners"))
-    count = 0
+    game_count = 0
     seen_games = set()
     while len(summoners) > 0:
         summoner = summoners.pop()
@@ -108,3 +119,21 @@ def load_challenger_games():
         match_response = requests.get(API_URL + "/lol/match/v4/matchlists/by-account/" + account_id,
                                       headers=REQUEST_HEADERS)
         validate_response(match_response)
+        if match_response.status_code == 429:
+            summoners.append(summoner)
+            handle_rate_limit(match_response, -1)
+        else:
+            matches = match_response.json()["matches"]
+            leftover_games = []
+            for match in matches:
+                match_id = match["gameId"]
+                if match_id not in seen_games:
+                    game_response = requests.get(API_URL + "/lol/match/v4/matches/" + str(match_id), headers=REQUEST_HEADERS)
+                    validate_response(game_response)
+                    if game_response.status_code == 429:
+                        leftover_games.append(game_response)
+                        handle_rate_limit(game_response, game_count)
+                    else:
+                        game_count += 1
+                        seen_games.add(match_id)
+                        load_into(database, game_response.json(), "challenger_games")
