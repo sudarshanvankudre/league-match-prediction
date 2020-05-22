@@ -115,7 +115,11 @@ def load_challenger_games():
     while len(summoners) > 0:
         summoner = summoners.pop()
         s = summoner.to_dict()
-        account_id = s["accountId"]
+        try:
+            account_id = s["accountId"]
+        except KeyError:
+            print("accountId not in summoner data")
+            continue
         match_response = requests.get(API_URL + "/lol/match/v4/matchlists/by-account/" + account_id,
                                       headers=REQUEST_HEADERS)
         validate_response(match_response)
@@ -123,7 +127,11 @@ def load_challenger_games():
             summoners.append(summoner)
             handle_rate_limit(match_response, -1)
         else:
-            matches = match_response.json()["matches"]
+            try:
+                matches = match_response.json()["matches"]
+            except Exception as e:
+                print("Exception was: ", e)
+                continue
             leftover_games = []
             for match in matches:
                 match_id = match["gameId"]
