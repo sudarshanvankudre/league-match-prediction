@@ -4,6 +4,11 @@ import yaml
 import pymongo
 import time
 
+apis = {
+    "CHALLENGER_LEAGUE_ENTRIES": "/lol/league/v4/challengerleagues/by-queue/",
+    "SUMMONER": "/lol/summoner/v4/summoners/"
+}
+
 with open('config.yml', 'r') as config:
     config_data = yaml.safe_load(config)
     database = config_data["database"]
@@ -62,6 +67,9 @@ def handle_rate_limit(r, count):
 
 
 def get_response(api, *args):
+    """Gets http response and makes sure that the response is valid. If not, does the appropriate actions."""
+    # todo: finish this method
+    # api is the main
     print(api)
     print(args)
     print(type(args))
