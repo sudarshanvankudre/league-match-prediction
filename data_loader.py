@@ -70,7 +70,8 @@ def get_response(api, *args):
 def get_collection(db_name, collection_name):
     """Returns an iterable of documents from the collection_name in db corresponding to db_name"""
     if db_name == "firestore":
-        return db.collection(collection_name).stream()
+        docs = db.collection(collection_name).stream()
+        return (d.to_dict() for d in docs)
     elif db_name == "mongodb":
         eval_string = "db.{}.find({})".format(collection_name, "")
         return eval(eval_string)
@@ -93,13 +94,12 @@ def load_challenger_summoners():
     print(len(entries))
     count = 0
     while len(entries) > 0:
-        entry = entries.pop()
-        e = entry.to_dict()
+        e = entries.pop()
         summoner_id = e["summonerId"]
         r = requests.get(API_URL + "/lol/summoner/v4/summoners/" + summoner_id, headers=REQUEST_HEADERS)
         validate_response(r)
         if r.status_code == 429:
-            entries.append(entry)
+            entries.append(e)
             handle_rate_limit(r, count)
         else:
             count += 1
@@ -113,8 +113,7 @@ def load_challenger_games():
     game_count = 0
     seen_games = set()
     while len(summoners) > 0:
-        summoner = summoners.pop()
-        s = summoner.to_dict()
+        s = summoners.pop()
         try:
             account_id = s["accountId"]
         except KeyError:
@@ -124,7 +123,7 @@ def load_challenger_games():
                                       headers=REQUEST_HEADERS)
         validate_response(match_response)
         if match_response.status_code == 429:
-            summoners.append(summoner)
+            summoners.append(s)
             handle_rate_limit(match_response, -1)
         else:
             try:
