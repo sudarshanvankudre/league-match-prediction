@@ -7,6 +7,10 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Perceptron
 
+# input vector construction: [topchamp1, midchamp1, jngchamp1, botchamp1, suppchamp1, topchamp2, midchamp2, jngchamp2,
+# botchamp2, suppchamp2, winrates for team1 in same order, winrates for team2 in same order]
+
+
 
 team = 0
 
@@ -15,7 +19,7 @@ attributes = ["baronKills", "dragonKills", "inhibitorKills", "riftHeraldKills", 
 attribute = "towerKills"
 # first, we have to get the data from the mongodb store that's on summoner's rift (map id 11)
 db = pymongo.MongoClient().datastore
-docs = db.challenger_games.find({})
+docs = db.challenger_games.find({"gameMode":"CLASSIC"})
 games = []
 seen = set()
 for d in docs:
