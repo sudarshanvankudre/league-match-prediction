@@ -24,7 +24,6 @@ REQUEST_HEADERS = config_data["request_info"]["REQUEST_HEADERS"]
 
 def load_into(db_name, doc, collection_name):
     """Writes doc to db.collection corresponding to db_name"""
-    print(db_name)
     if db_name == "firestore":
         db.collection(collection_name).document().set(doc)
     elif db_name == "mongodb":

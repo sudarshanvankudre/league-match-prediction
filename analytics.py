@@ -1,5 +1,5 @@
 import pymongo
-from data_loader import load_into
+from raw_data_loader import load_into
 
 db = pymongo.MongoClient().datastore
 
