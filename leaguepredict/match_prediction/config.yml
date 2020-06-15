@@ -1,0 +1,12 @@
+---
+request_info:
+  API_URL: "https://na1.api.riotgames.com"
+  QUEUE: "RANKED_SOLO_5x5"
+  REQUEST_HEADERS:
+    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0"
+    "Accept-Language": "en-US,en;q=0.5"
+    "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8"
+    "Origin": "https://developer.riotgames.com"
+    "X-Riot-Token": "RGAPI-e62d7aa3-7f50-41ca-a74c-2b7776ae1bc1"
+database: "mongodb"
+...

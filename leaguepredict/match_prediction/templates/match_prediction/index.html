@@ -5,10 +5,10 @@
     <title>League Predict</title>
 </head>
 <body>
-    <form action="{% url 'display_name' sname %}">
-        <label for="sname">Your Summoner Name:</label><br>
-        <input type="text" id="sname" name="sname">
-    <input type="submit" value="Submit">
-</form>
+    <form action="{% url 'match_prediction:index' %}" method="post" novalidate>
+        {{form}}
+        <input type="submit" value="Submit">
+        {% csrf_token %}
+    </form>
 </body>
 </html>
