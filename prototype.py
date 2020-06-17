@@ -2,9 +2,12 @@
 displayed as a distribution.
 """
 import pymongo
-import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import Perceptron
 AVG_WINRATE = 0.5144688460788702
 
@@ -62,14 +65,30 @@ for g in games:
     else:
         y.append(1)
 
+X = np.array(X)
+y = np.array(y)
 print("Training on data...")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
-clf = Perceptron(random_state=42)
-clf.fit(X_train, y_train)
-print("test accuracy of: ", clf.score(X_test, y_test))
+X_train, X_validate, y_train, y_validate = train_test_split(X_train, y_train, test_size=0.2)
+
+layer_size = 200
+activation = 'sigmoid'
+
+inputs = keras.Input(shape=(20,))
+x = layers.Dense(layer_size, activation=activation)(inputs)
+x = layers.Dense(layer_size, activation=activation)(x)
+x = layers.Dense(layer_size, activation=activation)(x)
+x = layers.Dense(layer_size, activation=activation)(x)
+x = layers.Dense(layer_size, activation=activation)(x)
+
+outputs = layers.Dense(2, activation='sigmoid', name='predictions')(x)
+model = keras.Model(inputs=inputs, outputs=outputs)
+
+model.compile(
+    optimizer=keras.optimizers.RMSprop(),
+    loss=keras.losses.MeanAbsoluteError(),
+    metrics=[keras.metrics.BinaryAccuracy()],
+)
 
 
-# data = [g["teams"][team][attribute] for g in train]
 
-# plt.hist(data)
-# plt.show()

@@ -1,5 +1,5 @@
-from raw_data_loader import load_challenger_entries, load_challenger_summoners, load_challenger_games
+from leaguepredict.match_prediction.raw_data_loader import load_entries, load_summoners, load_games
 
-load_challenger_entries()
-load_challenger_summoners()
-load_challenger_games()
+load_entries()
+load_summoners()
+load_games()
