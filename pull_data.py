@@ -1,11 +1,23 @@
 from leaguepredict.match_prediction.raw_data_loader import load_entries, load_summoners, load_games
+from analytics import load_winrates
 
+print("loading challenger entries")
 load_entries("challenger")
+print("loading grandmaster entries")
 load_entries("grandmaster")
+print("loading master entries")
 load_entries("master")
+print("loading diamond I entries")
 load_entries("diamond", division="I")
+print("loading diamond II entries")
 load_entries("diamond", division="II")
+print("loading diamond III entries")
 load_entries("diamond", division="III")
+print("loading diamond IV entries")
 load_entries("diamond", division="IV")
+print("loading summoners")
 load_summoners()
+print("loading games")
 load_games()
+print("calculating winrates")
+load_winrates("summoners", "games")

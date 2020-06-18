@@ -1,5 +1,5 @@
 import pymongo
-from raw_data_loader import load_into
+from leaguepredict.match_prediction.raw_data_loader import load_into
 
 db = pymongo.MongoClient().datastore
 
@@ -7,7 +7,9 @@ db = pymongo.MongoClient().datastore
 def load_winrates(summoner_collection_name, games_collection_name, mode="CLASSIC"):
     """Adds a winrate collection to db that has all of the winrates for each summoner in the summoner_collection_name
     collection using the data from the games_collection_name collection.
+    If the collection already exists, drop it first.
     """
+    db.summoner_winrates.drop()
 
     def is_valid_game(game, account_id):
         try:
