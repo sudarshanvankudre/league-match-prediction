@@ -2,29 +2,18 @@
 displayed as a distribution.
 """
 import pymongo
-import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPClassifier
-from sklearn.linear_model import Perceptron
-AVG_WINRATE = 0.5144688460788702
-
-# input vector construction: [topchamp1, midchamp1, jngchamp1, botchamp1, suppchamp1, topchamp2, midchamp2, jngchamp2,
-# botchamp2, suppchamp2, winrates for team1 in same order, winrates for team2 in same order]
-# input vector: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, corresponding winrates]
-
+AVG_WINRATE = 0.5169954315499581
 
 
 team = 0
 
-attributes = ["baronKills", "dragonKills", "inhibitorKills", "riftHeraldKills", "towerKills"]
-# attribute = attributes[np.random.randint(0, len(attributes))]
-attribute = "towerKills"
 # first, we have to get the data from the mongodb store that's on summoner's rift (map id 11)
 db = pymongo.MongoClient().datastore
-docs = db.challenger_games.find({"gameMode":"CLASSIC"})
+docs = db.games.find({"gameMode":"CLASSIC"})
 games = []
 seen = set()
 for d in docs:

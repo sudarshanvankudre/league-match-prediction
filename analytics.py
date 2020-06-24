@@ -52,5 +52,9 @@ def load_winrates(summoner_collection_name, games_collection_name, mode="CLASSIC
         doc = {"accountId": account_id, "winrate": winrate}
         load_into("mongodb", doc, "summoner_winrates")
 
+def avg_winrate():
+    #todo: calculate the average winrate out of all winrates currently in it
+    pass
+
 
 load_winrates("summoners", "games")
