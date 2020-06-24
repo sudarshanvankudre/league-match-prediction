@@ -1,4 +1,5 @@
 import pymongo
+
 from leaguepredict.match_prediction.raw_data_loader import load_into
 
 db = pymongo.MongoClient().datastore
@@ -9,12 +10,9 @@ def load_winrates(summoner_collection_name, games_collection_name, mode="CLASSIC
     collection using the data from the games_collection_name collection.
     If the collection already exists, drop it first.
     """
-    db.summoner_winrates.drop()
 
     def is_valid_game(game, account_id):
         try:
-            if game["gameMode"] != mode:
-                return False
             participating = False
             for p in game["participantIdentities"]:
                 if p["player"]["accountId"] == account_id:
@@ -25,10 +23,11 @@ def load_winrates(summoner_collection_name, games_collection_name, mode="CLASSIC
 
     # iterate over all summoners in db and calculate winrate for each one. This is a very expensive operation.
     summoner_collection = eval("db.{}".format(summoner_collection_name))
-    summoners = summoner_collection.find({})
+    summoners = list(summoner_collection.find())
     for summoner in summoners:
+        print(summoner["name"])
         games_collection = eval("db.{}".format(games_collection_name))
-        games = games_collection.find({})
+        games = games_collection.find({"gameMode": "CLASSIC"})
         account_id = summoner["accountId"]
         wins = 0
         total = 0
@@ -52,3 +51,6 @@ def load_winrates(summoner_collection_name, games_collection_name, mode="CLASSIC
             winrate = 0
         doc = {"accountId": account_id, "winrate": winrate}
         load_into("mongodb", doc, "summoner_winrates")
+
+
+load_winrates("summoners", "games")
